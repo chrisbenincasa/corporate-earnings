@@ -199,38 +199,40 @@ function displayContent() {
 }
 
 function epsDatesToHtml(epsDates) {
-  let html = '<table class="myt">';
-  html += `<thead>
-        <tr class="myd">
-            <td class="myd">Quarter</td>
-            <td class="myd">EPS (est.)</td>
-            <td class="myd">EPS (act.)</td>
-            <td class="myd">%Chg</td>
-            <td class="myd">Revenue(Mil)</td>
-            <td class="myd">%Chg</td>
-        </tr>
-    </thead>
-    <tbody>`;
+  let html = `
+    <table class="myt">
+        <thead>
+            <tr><th colspan="6">Quarterly EPS</th></tr>
+            <tr class="myd">
+                <td class="myd">Quarter</td>
+                <td class="myd">EPS (est.)</td>
+                <td class="myd">EPS (act.)</td>
+                <td class="myd">YOY %</td>
+                <td class="myd">Rev (Mil)</td>
+                <td class="myd">YOY %</td>
+            </tr>
+        </thead>
+         <tbody>`;
 
   if (epsDates.length == 0) {
     html +=
-      '<tr class="myd"><td class="myd" colspan="5">No data found.</td></tr>';
+      '<tr class="myd"><td class="myd" colspan="6">No data found.</td></tr>';
     html += "</tbody></table>";
     return html;
   }
 
   epsDates.forEach(function (item, index) {
     // skip all but the last 8 qtrs if option is enabled
-    if (limit_num_qtr == true && index < epsDates.length - 8) {
+    if (limit_num_qtr && index < epsDates.length - 8) {
       return;
     }
 
     let epsPerf = "-";
     if (typeof item.eps.perf !== "undefined") {
-      if (ms_style_output == true && item.eps.negativeCompQtr) {
+      if (ms_style_output && item.eps.negativeCompQtr) {
         epsPerf = "N/A";
       } else {
-        if (ms_style_output == true && item.eps.perf >= 1000) {
+        if (ms_style_output && item.eps.perf >= 1000) {
           epsPerf = "999";
         } else {
           epsPerf = item.eps.perf;
@@ -238,14 +240,14 @@ function epsDatesToHtml(epsDates) {
         if (item.eps.perf > 0) {
           epsPerf = "+" + epsPerf;
         }
-        if (ms_style_output == true && item.eps.negativeTurnaround) {
+        if (ms_style_output && item.eps.negativeTurnaround) {
           epsPerf = "#" + epsPerf;
         }
       }
     }
     let revPerf = "-";
     if (typeof item.rev.perf !== "undefined") {
-      if (ms_style_output == true && item.rev.perf >= 1000) {
+      if (ms_style_output && item.rev.perf >= 1000) {
         revPerf = "999";
       } else {
         revPerf = item.rev.perf;
@@ -254,34 +256,42 @@ function epsDatesToHtml(epsDates) {
         revPerf = "+" + revPerf;
       }
     }
-    html +=
-      '<tr class="myd"><td class="myd">' +
-      getDisplayQuarter(item.name) +
-      "</td>";
-    html += '<td class="myd">' + item.eps.consensus + "</td>";
-    html += '<td class="myd">' + item.eps.eps + "</td>";
-    html +=
-      '<td class="myd' +
-      getHighlightClass(item.eps.perf, epsPerf) +
-      '">' +
-      epsPerf +
-      "</td>";
-    html += '<td class="myd">$' + numberWithCommas(item.rev.rev) + "</td>";
-    html +=
-      '<td class="myd' +
-      getHighlightClass(item.rev.perf, revPerf) +
-      '">' +
-      revPerf +
-      "</td></tr>";
+
+    html += `
+        <tr class="myd">
+            <td class="myd">${getDisplayQuarter(item.name)}</td>
+            <td class="myd">${item.eps.consensus}</td>
+            <td class="myd">${item.eps.eps}</td>
+            <td class="myd ${getHighlightClass(
+              item.eps.perf,
+              epsPerf
+            )}">${epsPerf}</td>
+            <td class="myd">$${numberWithCommas(item.rev.rev)}</td>
+            <td class="myd ${getHighlightClass(
+              item.rev.perf,
+              revPerf
+            )}">${revPerf}</td>
+        </tr>
+    `;
   });
   html += "</tbody></table>";
   return html;
 }
 
 function yearlyToHtml(annualEst) {
-  let html = '<table class="myt">';
-  html +=
-    '<thead><tr class="myd"><td class="myd">Year</td><td class="myd">EPS</td><td class="myd">%Chg</td><td class="myd">Revenue(Mil)</td><td class="myd">%Chg</td></tr></thead><tbody>';
+  let html = `
+  <table class="myt">
+    <thead>
+        <tr><th colspan="5">Annual</th></tr>
+        <tr class="myd">
+            <td class="myd">Year</td>
+            <td class="myd">EPS</td>
+            <td class="myd">%YOY Chg</td>
+            <td class="myd">Revenue(Mil)</td>
+            <td class="myd">%YOY Chg</td>
+        </tr>
+    </thead>
+    <tbody>`;
 
   if (annualEst.length == 0) {
     html +=
@@ -465,8 +475,7 @@ function normalizeRevenue(revStr) {
 
 function normalizeQtrName(str) {
   let start = str.indexOf("(") + 1;
-  let qtr = str.substr(start, str.indexOf(")") - start);
-  return qtr;
+  return str.substr(start, str.indexOf(")") - start);
 }
 
 /*
