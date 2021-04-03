@@ -161,13 +161,19 @@ function prepare() {
     }   
 
     .earnings-table {
-        position: fixed;
         z-index: 1000;
         background: white;
         width: auto;
         display: flex;
         flex-direction: column;
         right: 0;
+        flex: 1;
+    }
+
+    .symbol_page {
+        flex: 2;
+        padding: 30px;
+        width: auto;
     }
     </style>`;
 
@@ -178,7 +184,10 @@ function prepare() {
 function displayContent() {
   $("#waiting").hide();
   $("#page_content_wrapper")
-    .css("display", "flex")
+    .css({
+      display: "flex",
+      "flex-direction": "row-reverse",
+    })
     .prepend(
       '<div class="earnings-table"><div class="column">' +
         yearlyToHtml(annualEst) +
